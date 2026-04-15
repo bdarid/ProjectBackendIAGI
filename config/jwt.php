@@ -47,7 +47,7 @@ return [
 
     'ttl' => env('JWT_TTL', 60), // Token expiration time in minutes
     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160), // Refresh token expiration time in minutes (14 days)
-    
+
     'algorithm' => env('JWT_ALGORITHM', 'HS256'),
     'required_claims' => ['iss', 'iat', 'exp', 'nbf', 'sub', 'jti'],
     'leeway' => env('JWT_LEEWAY', 0),
@@ -55,8 +55,8 @@ return [
     'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 10),
     'show_bearer_in_authorization_header' => true,
     'providers' => [
-        'jwt' => Tymon\JwtAuth\Providers\JwtProvider::class,
-        'auth' => Tymon\JwtAuth\Providers\AuthProvider::class,
-        'storage' => Tymon\JwtAuth\Providers\StorageProvider::class,
+        'jwt' => Tymon\JWTAuth\Providers\JWT\Lcobucci::class,
+        'auth' => Tymon\JWTAuth\Providers\Auth\Illuminate::class,
+        'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class,
     ],
 ];

@@ -2,39 +2,49 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+// ... tes autres use (HasFactory, Notifiable, etc.) ...
+
+use Tymon\JWTAuth\Contracts\JWTSubject; // 1. AJOUTE CETTE LIGNE
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+// 2. AJOUTE "implements JWTSubject" ICI
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role', // (Assure-toi que role est bien ici !)
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    // ...
+
+    // 3. AJOUTE CES DEUX FONCTIONS TOUT EN BAS DE LA CLASSE
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Récupère l'identifiant de l'utilisateur pour le JWT.
      */
-    protected function casts(): array
+    public function getJWTIdentifier()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->getKey();
     }
 
     /**
-     * Relation avec le profil du candidat
+     * Permet d'ajouter des données personnalisées dans le Token.
      */
-    public function profil(): HasOne
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+    public function profil()
     {
         return $this->hasOne(Profil::class);
     }

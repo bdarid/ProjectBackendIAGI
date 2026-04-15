@@ -5,18 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Profil;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JwtAuth\Facades\JWTAuth;
-use Tymon\JwtAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Hash; // AJOUTÉ : Pour le mot de passe
+use Illuminate\Support\Facades\Validator; // AJOUTÉ : Pour la validation
+use Tymon\JWTAuth\Facades\JWTAuth; // CORRIGÉ : JWT en majuscules
+use Tymon\JWTAuth\Exceptions\JWTException; // CORRIGÉ : JWT en majuscules
 
 class AuthController extends Controller
 {
     /**
      * Authentifie un utilisateur et retourne un token JWT.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
     {
@@ -44,9 +41,6 @@ class AuthController extends Controller
 
     /**
      * Crée un nouvel utilisateur et retourne un token JWT.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request)
     {
@@ -62,7 +56,7 @@ class AuthController extends Controller
         }
 
         try {
-            $role = $request->role ?? 'candidat'; // Rôle par défaut: candidat
+            $role = $request->role ?? 'candidat';
 
             $user = User::create([
                 'name' => $request->name,
@@ -71,7 +65,7 @@ class AuthController extends Controller
                 'role' => $role,
             ]);
 
-            // Créer un profil si l'utilisateur est un candidat
+            // Création automatique du profil vide
             if ($role === 'candidat') {
                 Profil::create([
                     'user_id' => $user->id,
@@ -93,48 +87,28 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Invalide le token JWT.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function logout()
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
-
             return response()->json(['message' => 'User logged out successfully'], 200);
         } catch (JWTException $e) {
             return response()->json(['message' => 'Failed to logout'], 500);
         }
     }
 
-    /**
-     * Retourne les informations de l'utilisateur connecté.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function me()
     {
         try {
             if (!$user = JWTAuth::parseToken()->authenticate()) {
                 return response()->json(['message' => 'User not found'], 404);
             }
-
-            return response()->json([
-                'user' => $user,
-            ], 200);
+            return response()->json(['user' => $user], 200);
         } catch (JWTException $e) {
             return response()->json(['message' => 'Invalid token'], 401);
         }
     }
 
-    /**
-     * Retourne la réponse avec le token.
-     *
-     * @param string $token
-     * @return \Illuminate\Http\JsonResponse
-     */
     protected function respondWithToken($token)
     {
         return response()->json([
@@ -146,11 +120,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Rafraîchit le token JWT.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function refresh()
     {
         try {

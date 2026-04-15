@@ -3,5 +3,6 @@
 use App\Providers\AppServiceProvider;
 
 return [
-    AppServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    Tymon\JWTAuth\Providers\LaravelServiceProvider::class, // AJOUTE CETTE LIGNE
 ];
