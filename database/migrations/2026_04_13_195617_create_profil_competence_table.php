@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('profil_competence', function (Blueprint $table) {
             $table->id();
+
+            // Liaison avec la table profils (clé étrangère)
+            $table->foreignId('profil_id')->constrained('profils')->onDelete('cascade');
+
+            // Liaison avec la table competences (clé étrangère)
+            $table->foreignId('competence_id')->constrained('competences')->onDelete('cascade');
+
+            // Le niveau de la compétence (ex: Débutant, Intermédiaire, Expert)
+            $table->string('niveau')->nullable();
+
             $table->timestamps();
         });
     }

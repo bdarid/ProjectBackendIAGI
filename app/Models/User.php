@@ -2,49 +2,58 @@
 
 namespace App\Models;
 
-// ... tes autres use (HasFactory, Notifiable, etc.) ...
-
-use Tymon\JWTAuth\Contracts\JWTSubject; // 1. AJOUTE CETTE LIGNE
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-// 2. AJOUTE "implements JWTSubject" ICI
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role', // (Assure-toi que role est bien ici !)
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    // ...
-
-    // 3. AJOUTE CES DEUX FONCTIONS TOUT EN BAS DE LA CLASSE
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+    // ✅ AJOUTE CES 2 LIGNES ICI, juste après les "use" :
+    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
-     * Récupère l'identifiant de l'utilisateur pour le JWT.
+     * Get the identifier that will be stored in the JWT subject claim.
      */
-    public function getJWTIdentifier()
+    public function getJWTIdentifier(): mixed
     {
         return $this->getKey();
     }
 
     /**
-     * Permet d'ajouter des données personnalisées dans le Token.
+     * Return a key value array, containing any custom claims to add to the JWT.
+     *
+     * @return array<string, mixed>
      */
-    public function getJWTCustomClaims()
+    public function getJWTCustomClaims(): array
     {
-        return [];
+        return [
+            'role' => $this->role,
+        ];
     }
-    public function profil()
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password'          => 'hashed',
+        ];
+    }
+
+    /**
+     * Relation avec le profil du candidat
+     */
+    public function profil(): HasOne
     {
         return $this->hasOne(Profil::class);
     }

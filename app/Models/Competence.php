@@ -10,4 +10,13 @@ class Competence extends Model
     use HasFactory;
 
     protected $fillable = ['nom', 'categorie'];
+    /**
+     * Relation avec les profils
+     */
+    public function profils()
+    {
+        return $this->belongsToMany(Profil::class, 'profil_competence')
+            ->withPivot('niveau')
+            ->withTimestamps();
+    }
 }

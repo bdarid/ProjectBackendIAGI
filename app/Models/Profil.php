@@ -18,4 +18,13 @@ class Profil extends Model
     {
         return $this->belongsTo(User::class);
     }
+    /**
+     * Relation avec les compétences (Many-to-Many)
+     */
+    public function competences()
+    {
+        return $this->belongsToMany(Competence::class, 'profil_competence')
+            ->withPivot('niveau') // Permet d'accéder au champ 'débutant', 'expert', etc.
+            ->withTimestamps();
+    }
 }
