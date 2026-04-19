@@ -1,0 +1,1509 @@
+{
+	"info": {
+		"_postman_id": "iagi-api-collection-2026",
+		"name": "IAGI - API Complète",
+		"description": "Collection Postman couvrant tous les endpoints de l'API IAGI : authentification JWT, profil candidat, offres d'emploi, candidatures, administration, et les cas d'erreur (401, 403, 422).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "token_candidat",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token_recruteur",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token_admin",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "offre_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "candidature_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "user_id_to_delete",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "competence_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "01 — Authentification",
+			"description": "Inscription, connexion, profil utilisateur, refresh token, déconnexion.",
+			"item": [
+				{
+					"name": "Register — Candidat (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_candidat', json.token);",
+									"    pm.test('Candidat registered & token saved', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"        pm.expect(json.user.role).to.eql('candidat');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Candidat Test\",\n    \"email\": \"candidat@test.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"candidat\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register — Recruteur (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_recruteur', json.token);",
+									"    pm.test('Recruteur registered & token saved', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"        pm.expect(json.user.role).to.eql('recruteur');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Recruteur Test\",\n    \"email\": \"recruteur@test.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"recruteur\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register — 422 Validation (email manquant)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — validation error', function () {",
+									"    pm.response.to.have.status(422);",
+									"    pm.expect(pm.response.json().errors).to.have.property('email');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"No Email User\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register — 422 Validation (password trop court)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — password too short', function () {",
+									"    pm.response.to.have.status(422);",
+									"    pm.expect(pm.response.json().errors).to.have.property('password');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Short Pass\",\n    \"email\": \"shortpass@test.com\",\n    \"password\": \"123\",\n    \"password_confirmation\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login — Candidat (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_candidat', json.token);",
+									"    pm.test('Candidat logged in & token saved', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"        pm.expect(json.token_type).to.eql('Bearer');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"candidat@test.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login — Recruteur (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_recruteur', json.token);",
+									"    pm.test('Recruteur logged in & token saved', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"recruteur@test.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login — 401 Invalid credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 401 — invalid credentials', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"wrong@test.com\",\n    \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login — 422 Validation (email invalide)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — validation error', function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"not-an-email\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Me — Voir mon profil (Candidat)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — user info returned', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().user).to.have.property('email');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Me — 401 Sans token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 401 — unauthenticated', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token (Candidat)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_candidat', json.token);",
+									"    pm.test('Token refreshed', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "Logout (Candidat) — puis re-login après",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — logged out', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						}
+					}
+				},
+				{
+					"name": "Re-Login Candidat (pour la suite)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_candidat', json.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"candidat@test.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02 — Profil Candidat",
+			"description": "CRUD du profil candidat : consultation, mise à jour, ajout de compétences.",
+			"item": [
+				{
+					"name": "Voir mon profil (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — profil returned', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/profil/me",
+							"host": ["{{base_url}}"],
+							"path": ["profil", "me"]
+						}
+					}
+				},
+				{
+					"name": "Voir mon profil — 403 Recruteur interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — forbidden for recruteur', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/profil/me",
+							"host": ["{{base_url}}"],
+							"path": ["profil", "me"]
+						}
+					}
+				},
+				{
+					"name": "Mettre à jour mon profil (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — profil updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Développeur Full Stack\",\n    \"bio\": \"Passionné par le développement web et mobile.\",\n    \"localisation\": \"Casablanca, Maroc\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profil",
+							"host": ["{{base_url}}"],
+							"path": ["profil"]
+						}
+					}
+				},
+				{
+					"name": "Mettre à jour profil — 401 Sans token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 401 — unauthenticated', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Hacker\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profil",
+							"host": ["{{base_url}}"],
+							"path": ["profil"]
+						}
+					}
+				},
+				{
+					"name": "Ajouter une compétence (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — competence added', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"competence_id\": 1,\n    \"niveau\": \"intermédiaire\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profil/competences",
+							"host": ["{{base_url}}"],
+							"path": ["profil", "competences"]
+						}
+					}
+				},
+				{
+					"name": "Ajouter compétence — 422 Validation (niveau invalide)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — validation error', function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"competence_id\": 1,\n    \"niveau\": \"invalide_level\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profil/competences",
+							"host": ["{{base_url}}"],
+							"path": ["profil", "competences"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03 — CRUD Offres",
+			"description": "Gestion des offres d'emploi : liste publique, détail, création, modification, suppression.",
+			"item": [
+				{
+					"name": "Liste des offres (publique)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — offres list', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Liste des offres — Filtre localisation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres?localisation=Casablanca",
+							"host": ["{{base_url}}"],
+							"path": ["offres"],
+							"query": [
+								{ "key": "localisation", "value": "Casablanca" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Liste des offres — Filtre type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres?type=CDI",
+							"host": ["{{base_url}}"],
+							"path": ["offres"],
+							"query": [
+								{ "key": "type", "value": "CDI" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Détail d'une offre (publique)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — offre detail', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Créer une offre — Recruteur (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('offre_id', json.id);",
+									"    pm.test('Offre created & ID saved', function () {",
+									"        pm.expect(json.id).to.be.a('number');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Développeur Laravel Senior\",\n    \"description\": \"Nous recherchons un développeur Laravel expérimenté.\",\n    \"localisation\": \"Casablanca, Maroc\",\n    \"type\": \"CDI\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Créer offre — 403 Candidat interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — candidat cannot create offre', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Offre pirate\",\n    \"description\": \"Je suis candidat, pas recruteur\",\n    \"localisation\": \"Nulle part\",\n    \"type\": \"Stage\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Créer offre — 422 Validation (titre manquant)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — validation error', function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Offre sans titre\",\n    \"localisation\": \"Rabat\",\n    \"type\": \"CDI\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Créer offre — 401 Sans token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 401 — unauthenticated', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Offre sans auth\",\n    \"description\": \"Test\",\n    \"localisation\": \"Test\",\n    \"type\": \"CDI\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Modifier offre — Recruteur propriétaire (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — offre updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Développeur Laravel Senior (Mis à jour)\",\n    \"description\": \"Description mise à jour.\",\n    \"localisation\": \"Rabat, Maroc\",\n    \"type\": \"CDI\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Supprimer offre — Recruteur propriétaire (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — offre deleted', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "04 — Candidatures",
+			"description": "Postuler, consulter ses candidatures, voir les candidatures reçues, changer le statut.",
+			"item": [
+				{
+					"name": "[Setup] Recréer une offre pour candidature",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('offre_id', json.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titre\": \"Stage Développeur React\",\n    \"description\": \"Stage de 6 mois en développement front-end.\",\n    \"localisation\": \"Marrakech, Maroc\",\n    \"type\": \"Stage\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres",
+							"host": ["{{base_url}}"],
+							"path": ["offres"]
+						}
+					}
+				},
+				{
+					"name": "Postuler — Candidat (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('candidature_id', json.id);",
+									"    pm.test('Candidature created & ID saved', function () {",
+									"        pm.expect(json.statut).to.eql('en attente');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Je suis très motivé pour ce stage !\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}/postuler",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}", "postuler"]
+						}
+					}
+				},
+				{
+					"name": "Postuler — 422 Déjà postulé (doublon)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — already applied', function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Tentative de doublon\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}/postuler",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}", "postuler"]
+						}
+					}
+				},
+				{
+					"name": "Postuler — 403 Recruteur interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — recruteur cannot apply', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Je suis recruteur, pas candidat\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}/postuler",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}", "postuler"]
+						}
+					}
+				},
+				{
+					"name": "Mes candidatures — Candidat (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — candidatures list', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mes-candidatures",
+							"host": ["{{base_url}}"],
+							"path": ["mes-candidatures"]
+						}
+					}
+				},
+				{
+					"name": "Candidatures reçues — Recruteur (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — candidatures received', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}/candidatures",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}", "candidatures"]
+						}
+					}
+				},
+				{
+					"name": "Candidatures reçues — 403 Candidat interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — candidat cannot view', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/offres/{{offre_id}}/candidatures",
+							"host": ["{{base_url}}"],
+							"path": ["offres", "{{offre_id}}", "candidatures"]
+						}
+					}
+				},
+				{
+					"name": "Changer statut — Accepter (Recruteur)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — statut updated to acceptée', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().statut).to.eql('acceptée');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"acceptée\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candidatures/{{candidature_id}}/statut",
+							"host": ["{{base_url}}"],
+							"path": ["candidatures", "{{candidature_id}}", "statut"]
+						}
+					}
+				},
+				{
+					"name": "Changer statut — Refuser (Recruteur)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — statut updated to refusée', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().statut).to.eql('refusée');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"refusée\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candidatures/{{candidature_id}}/statut",
+							"host": ["{{base_url}}"],
+							"path": ["candidatures", "{{candidature_id}}", "statut"]
+						}
+					}
+				},
+				{
+					"name": "Changer statut — 422 Statut invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 422 — invalid statut value', function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"invalide\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candidatures/{{candidature_id}}/statut",
+							"host": ["{{base_url}}"],
+							"path": ["candidatures", "{{candidature_id}}", "statut"]
+						}
+					}
+				},
+				{
+					"name": "Changer statut — 403 Candidat interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — candidat cannot change statut', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"acceptée\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/candidatures/{{candidature_id}}/statut",
+							"host": ["{{base_url}}"],
+							"path": ["candidatures", "{{candidature_id}}", "statut"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "05 — Administration",
+			"description": "Routes admin : lister les utilisateurs, supprimer un utilisateur.",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token_admin', json.token);",
+									"    pm.test('Admin logged in & token saved', function () {",
+									"        pm.expect(json.token).to.be.a('string');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@test.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Lister utilisateurs — Admin (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — users listed', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_admin}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Lister utilisateurs — 403 Candidat interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — candidat forbidden', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_candidat}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Lister utilisateurs — 403 Recruteur interdit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 403 — recruteur forbidden', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_recruteur}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Lister utilisateurs — 401 Sans token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 401 — unauthenticated', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Supprimer utilisateur — Admin (succès)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200 — user deleted', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token_admin}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{user_id_to_delete}}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "{{user_id_to_delete}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
