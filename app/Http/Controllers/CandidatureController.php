@@ -6,6 +6,8 @@ use App\Models\Candidature;
 use App\Models\Offre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\CandidatureDeposee;
+use App\Events\StatutCandidatureMis;
 
 class CandidatureController extends Controller
 {
@@ -30,6 +32,9 @@ class CandidatureController extends Controller
             'message' => $request->message, // ou $request->input('message')
             'statut' => 'en attente',
         ]);
+        //declanchement de levent
+        CandidatureDeposee::dispatch($candidature);
+
 
         return response()->json($candidature, 201);
     }
@@ -69,8 +74,14 @@ class CandidatureController extends Controller
         if ($candidature->offre->user_id !== Auth::id()) {
             return response()->json(['error' => 'Accès interdit.'], 403);
         }
+        //capture de lancien statut
+        $ancienStatut = $candidature->statut;
+        $nouveauStatut = $request->statut;
 
-        $candidature->update(['statut' => $request->statut]);
+        $candidature->update(['statut' => $nouveauStatut]);
+        //declanchement de evenement
+        StatutCandidatureMis::dispatch($candidature, $ancienStatut, $nouveauStatut);
+
         return response()->json($candidature, 200);
     }
 }
