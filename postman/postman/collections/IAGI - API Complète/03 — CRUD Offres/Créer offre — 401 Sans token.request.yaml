@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/offres"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "titre": "Offre sans auth",
+        "description": "Test",
+        "localisation": "Test",
+        "type": "CDI"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 401 — unauthenticated', function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 8000

@@ -1,0 +1,11 @@
+# Use this workspace to collaborate
+workspace:
+  id: 503482b2-15ac-404a-87dc-8c426601b784
+
+localResources:
+  collections:
+    - ..\IAGI_API_Collection.postman_collection.json
+
+cloudResources:
+  collections:
+    ..\postman\collections\IAGI - API Complète: d4e9e304-40ca-4855-ac95-bc834523632a

@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "candidat@test.com",
+        "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('token_candidat', json.token);
+          pm.test('Candidat logged in & token saved', function () {
+              pm.expect(json.token).to.be.a('string');
+              pm.expect(json.token_type).to.eql('Bearer');
+          });
+      }
+    language: text/javascript
+order: 5000

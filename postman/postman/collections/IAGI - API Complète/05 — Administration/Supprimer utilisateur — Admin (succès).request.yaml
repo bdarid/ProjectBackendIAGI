@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/admin/users/{{user_id_to_delete}}"
+method: DELETE
+headers:
+  Accept: application/json
+  Authorization: Bearer {{token_admin}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — user deleted', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 6000

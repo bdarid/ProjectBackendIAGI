@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/mes-candidatures"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{token_candidat}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — candidatures list', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 5000

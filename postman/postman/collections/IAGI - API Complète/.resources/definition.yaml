@@ -1,0 +1,11 @@
+$kind: collection
+description: "Collection Postman couvrant tous les endpoints de l'API IAGI : authentification JWT, profil candidat, offres d'emploi, candidatures, administration, et les cas d'erreur (401, 403, 422)."
+variables:
+  base_url: http://127.0.0.1:8000/api
+  token_candidat: ""
+  token_recruteur: ""
+  token_admin: ""
+  offre_id: "1"
+  candidature_id: "1"
+  user_id_to_delete: "2"
+  competence_id: "1"

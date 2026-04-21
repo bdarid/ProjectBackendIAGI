@@ -1,0 +1,3 @@
+$kind: collection
+description: "Gestion des offres d'emploi : liste publique, détail, création, modification, suppression."
+order: 3000

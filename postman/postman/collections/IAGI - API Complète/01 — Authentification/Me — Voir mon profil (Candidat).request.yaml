@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{base_url}}/auth/me"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{token_candidat}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — user info returned', function () {
+          pm.response.to.have.status(200);
+          pm.expect(pm.response.json().user).to.have.property('email');
+      });
+    language: text/javascript
+order: 9000

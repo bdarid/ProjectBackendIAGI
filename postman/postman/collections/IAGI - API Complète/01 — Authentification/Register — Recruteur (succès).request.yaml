@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{base_url}}/auth/register"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "name": "Recruteur Test",
+        "email": "recruteur@test.com",
+        "password": "password123",
+        "password_confirmation": "password123",
+        "role": "recruteur"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('token_recruteur', json.token);
+          pm.test('Recruteur registered & token saved', function () {
+              pm.expect(json.token).to.be.a('string');
+              pm.expect(json.user.role).to.eql('recruteur');
+          });
+      }
+    language: text/javascript
+order: 2000

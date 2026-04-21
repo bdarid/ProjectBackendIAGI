@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{base_url}}/offres"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_recruteur}}
+body:
+  type: text
+  content: |-
+    {
+        "titre": "Stage Développeur React",
+        "description": "Stage de 6 mois en développement front-end.",
+        "localisation": "Marrakech, Maroc",
+        "type": "Stage"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('offre_id', json.id);
+      }
+    language: text/javascript
+order: 1000

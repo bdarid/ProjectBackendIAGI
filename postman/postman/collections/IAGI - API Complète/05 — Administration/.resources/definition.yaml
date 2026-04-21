@@ -1,0 +1,3 @@
+$kind: collection
+description: "Routes admin : lister les utilisateurs, supprimer un utilisateur."
+order: 5000

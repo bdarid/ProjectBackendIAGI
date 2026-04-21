@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "not-an-email",
+        "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 422 — validation error', function () {
+          pm.response.to.have.status(422);
+      });
+    language: text/javascript
+order: 8000

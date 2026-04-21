@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/offres?localisation=Casablanca"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  localisation: Casablanca
+order: 2000

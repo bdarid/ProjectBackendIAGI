@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{base_url}}/offres/{{offre_id}}/postuler"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_candidat}}
+body:
+  type: text
+  content: |-
+    {
+        "message": "Je suis très motivé pour ce stage !"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('candidature_id', json.id);
+          pm.test('Candidature created & ID saved', function () {
+              pm.expect(json.statut).to.eql('en attente');
+          });
+      }
+    language: text/javascript
+order: 2000

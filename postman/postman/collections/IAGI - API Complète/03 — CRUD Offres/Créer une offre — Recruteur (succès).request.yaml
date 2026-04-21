@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{base_url}}/offres"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_recruteur}}
+body:
+  type: text
+  content: |-
+    {
+        "titre": "Développeur Laravel Senior",
+        "description": "Nous recherchons un développeur Laravel expérimenté.",
+        "localisation": "Casablanca, Maroc",
+        "type": "CDI"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('offre_id', json.id);
+          pm.test('Offre created & ID saved', function () {
+              pm.expect(json.id).to.be.a('number');
+          });
+      }
+    language: text/javascript
+order: 5000

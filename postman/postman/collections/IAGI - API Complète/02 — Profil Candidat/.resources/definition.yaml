@@ -1,0 +1,3 @@
+$kind: collection
+description: "CRUD du profil candidat : consultation, mise à jour, ajout de compétences."
+order: 2000

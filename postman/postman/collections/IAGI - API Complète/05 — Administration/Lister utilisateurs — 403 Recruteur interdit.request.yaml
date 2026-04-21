@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/admin/users"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{token_recruteur}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 403 — recruteur forbidden', function () {
+          pm.response.to.have.status(403);
+      });
+    language: text/javascript
+order: 4000

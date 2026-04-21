@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/offres/{{offre_id}}/candidatures"
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer {{token_recruteur}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — candidatures received', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 6000

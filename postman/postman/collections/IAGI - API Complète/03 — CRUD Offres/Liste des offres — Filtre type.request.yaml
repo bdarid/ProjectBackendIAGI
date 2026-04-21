@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/offres?type=CDI"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  type: CDI
+order: 3000

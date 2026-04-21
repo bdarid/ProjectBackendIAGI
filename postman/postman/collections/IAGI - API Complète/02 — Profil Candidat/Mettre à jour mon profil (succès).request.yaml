@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/profil"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_candidat}}
+body:
+  type: text
+  content: |-
+    {
+        "titre": "Développeur Full Stack",
+        "bio": "Passionné par le développement web et mobile.",
+        "localisation": "Casablanca, Maroc"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — profil updated', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 3000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{base_url}}/offres"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — offres list', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 1000

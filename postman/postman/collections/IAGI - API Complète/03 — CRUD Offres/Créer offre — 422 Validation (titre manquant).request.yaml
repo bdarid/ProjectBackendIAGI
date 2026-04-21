@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/offres"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_recruteur}}
+body:
+  type: text
+  content: |-
+    {
+        "description": "Offre sans titre",
+        "localisation": "Rabat",
+        "type": "CDI"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 422 — validation error', function () {
+          pm.response.to.have.status(422);
+      });
+    language: text/javascript
+order: 7000

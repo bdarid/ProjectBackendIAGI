@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{base_url}}/offres/{{offre_id}}"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{token_recruteur}}
+body:
+  type: text
+  content: |-
+    {
+        "titre": "Développeur Laravel Senior (Mis à jour)",
+        "description": "Description mise à jour.",
+        "localisation": "Rabat, Maroc",
+        "type": "CDI"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200 — offre updated', function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 9000

@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/auth/register"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "name": "No Email User",
+        "password": "password123",
+        "password_confirmation": "password123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 422 — validation error', function () {
+          pm.response.to.have.status(422);
+          pm.expect(pm.response.json().errors).to.have.property('email');
+      });
+    language: text/javascript
+order: 3000
