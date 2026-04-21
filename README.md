@@ -125,7 +125,7 @@ Pour lancer le projet localement et vérifier la structure :
 
 ---
 
-## 🔐 Partie 2 & 3 : Authentification JWT & Endpoints API (Yassine Boumezough)
+## 🔐 Partie 2 & 3 : Authentification JWT & Endpoints API 
 
 Cette phase concerne la sécurisation de l'API avec **JWT** et la mise en place des routes **(CRUD)** pour les profils, les offres et les candidatures, avec une gestion stricte des rôles via **Middleware**.
 
