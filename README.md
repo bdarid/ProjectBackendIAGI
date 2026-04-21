@@ -156,7 +156,7 @@ L'API a été testée et validée avec succès. Voici les preuves de fonctionnem
 </br>
 
 **Token absent ou invalide — Accès refusé (Erreur 401 Unauthorized) :**  
-![Login Erreur 401](docs/screenshots/Login%20-%20Erreur%20(401).png)
+![Login Erreur 401](docs/screenshots/Login%20-%20%20Erreur%20(401).png)
 </br>
 
 ---
