@@ -156,7 +156,7 @@ L'API a été testée et validée avec succès. Voici les preuves de fonctionnem
 </br>
 
 **Token absent ou invalide — Accès refusé (Erreur 401 Unauthorized) :**  
-![Login Erreur 401](docs/screenshots/Login%20-%20%20Erreur%20(401).png)
+![Login Erreur 401](docs/screenshots/Login%20-%20Erreur%20(401).png)
 </br>
 
 ---
@@ -239,3 +239,35 @@ Lorsqu'un recruteur change le statut d'une candidature (acceptée, rejetée, etc
 ![Log changement statut cmd](docs/screenshots/logchagementstatus.png)  
 ![Log changement statut code](docs/screenshots/logchagementstatuscode.png)
 </br>
+
+
+## Partie 5 : Collection Postman & Scénarios de Test
+
+Conformément aux exigences du projet, une collection Postman complète a été exportée et déposée dans le dépôt GitHub. Vous trouverez le fichier `.json` contenant tous les tests dans le dossier `postman/` à la racine du projet. 
+
+### Emplacement de la Collection
+![Emplacement de la collection Postman](docs/screenshots/emplacement_collection.png)
+</br>
+### Scénarios Couverts par la Collection
+
+Cette collection couvre l'intégralité des scénarios d'utilisation de l'API, structurée pour valider les chemins nominaux ainsi que la gestion des erreurs :
+</br>
+![Scenarios](docs/screenshots/collection_postman.jpeg)
+</br>
+
+**1. Authentification**
+- Scénarios d'inscription et de connexion pour la récupération du Token JWT.
+
+**2. Opérations CRUD (Profils et Offres)**
+- Scénarios complets pour la gestion des profils par les candidats.
+- Scénarios complets pour la gestion des offres d'emploi par les recruteurs.
+
+**3. Candidatures & Changement de Statut**
+- Dépôt d'une candidature à une offre par un candidat.
+- Mise à jour du statut de la candidature par un recruteur.
+
+**4. Gestion des Erreurs (401, 403, 422)**
+Afin de garantir la robustesse de l'API, des requêtes spécifiques valident les rejets du serveur :
+- **Erreur 401 (Non autorisé)** : Requêtes effectuées sans Token JWT valide.
+- **Erreur 403 (Interdit)** : Tentatives d'accès à des actions non autorisées par le rôle (ex: un candidat qui tente de créer une offre ou de modifier un statut).
+- **Erreur 422 (Entité non traitable)** : Soumission de requêtes avec des données manquantes ou invalides.
