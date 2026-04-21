@@ -9,7 +9,7 @@ Ce projet est une API Backend développée avec **Laravel 11** pour la gestion d
 
 ---
 
-##  Partie 1 : Modélisation et Base de Données (Darid Bakr)
+##  Partie 1 : Modélisation et Base de Données 
 
 L'objectif de cette étape était de construire une base de données solide et fonctionnelle, prête à accueillir l'authentification et les fonctionnalités métier.
 
